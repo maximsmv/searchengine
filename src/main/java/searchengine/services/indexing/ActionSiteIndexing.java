@@ -16,23 +16,30 @@ import searchengine.services.SiteService;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
 @Service
 @RequiredArgsConstructor
 public class ActionSiteIndexing extends RecursiveAction {
+
+    private static Set<String> urls;
     private SiteService siteService;
     private PageService pageService;
     private Site site;
     private Page page;
+    private String lastError;
 
     public ActionSiteIndexing(Site site, SiteService siteService, PageService pageService) {
         this.site = site;
         Page page = new Page();
         page.setPath("/");
         page.setSite(site);
+        urls = new HashSet<>();
+        urls.add(site.getUrl() + "/");
         this.page = page;
         this.siteService = siteService;
         this.pageService = pageService;
@@ -58,24 +65,19 @@ public class ActionSiteIndexing extends RecursiveAction {
             site.setStatusTime(LocalDate.now());
             siteService.update(site);
         } catch (IOException e) {
-            System.out.println("Не смог подключиться к странице: " + site.getUrl() + page.getPath());
-            page.setCode(document.connection().response().statusCode());
-            page.setContent(e.getMessage());
-            site.setLastError(e.getMessage());
-            pageService.save(page);
-            siteService.update(site);
+            lastError = e.getMessage();
             e.printStackTrace();
         }
         if (document != null) {
             Elements linkParse = document.select("a");
             for (Element element : linkParse) {
                 String childUrl = element.attr("href");
-                System.out.println("ПРОВЕРЯЮ есть ли " + page.getPath() + " уже в таблице: " + pageService.findByPathAndSite(fullToShortUrl(site.getUrl(), childUrl), site));
-                if (isSuitableLink(site.getUrl(), childUrl) & pageService.findByPathAndSite(fullToShortUrl(site.getUrl(), childUrl), site) == null) {
+                if (isSuitableLink(site.getUrl(), childUrl) & !urls.contains(shortToFullUrl(site.getUrl(), childUrl))) {
                     System.out.println("Зашел в форк новой сраницы: " + childUrl);
                     Page childPage = new Page();
                     childPage.setSite(site);
                     childPage.setPath(fullToShortUrl(site.getUrl(), childUrl));
+                    urls.add(shortToFullUrl(site.getUrl(), childPage.getPath()));
                     ActionSiteIndexing task = new ActionSiteIndexing(site, childPage, siteService, pageService);
                     task.fork();
                     taskList.add(task);
@@ -84,6 +86,13 @@ public class ActionSiteIndexing extends RecursiveAction {
             if (!taskList.isEmpty()) {
                 ForkJoinTask.invokeAll(taskList);
             }
+        } else {
+            System.out.println("Не смог подключиться к странице: " + site.getUrl() + page.getPath());
+            page.setCode(404);
+            page.setContent(lastError);
+            site.setLastError(lastError);
+            pageService.save(page);
+            siteService.update(site);
         }
     }
 
