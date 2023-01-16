@@ -1,0 +1,12 @@
+@font-face {
+    font-family: "Montserrat Thin";
+    src: url("Montserrat-Thin.eot"); /* IE9 */
+    src: url("Montserrat-Thin.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+    url("Montserrat-Thin.woff") format("woff"), /* chrome, firefox */
+    url("Montserrat-Thin.ttf") format("truetype"), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+    url("Montserrat-Thin.svg#Montserrat Thin") format("svg"); /* iOS 4.1- */
+    font-style: normal;
+    font-weight: normal;
+}
+
+

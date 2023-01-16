@@ -1,0 +1,12 @@
+@font-face {
+    font-family: "Montserrat Medium";
+    src: url("Montserrat-Medium.eot"); /* IE9 */
+    src: url("Montserrat-Medium.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+    url("Montserrat-Medium.woff") format("woff"), /* chrome, firefox */
+    url("Montserrat-Medium.ttf") format("truetype"), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+    url("Montserrat-Medium.svg#Montserrat Medium") format("svg"); /* iOS 4.1- */
+    font-style: normal;
+    font-weight: normal;
+}
+
+

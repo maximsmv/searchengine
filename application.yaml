@@ -1,0 +1,23 @@
+server:
+  port: 8080
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/search_engine
+    username: postgres
+    password: 27030176
+
+# example values
+
+indexing-settings:
+  sites:
+    - url: https://www.dextra.ru
+      name: Лента.ру
+    - url: http://www.playback.ru
+      name: Playback
