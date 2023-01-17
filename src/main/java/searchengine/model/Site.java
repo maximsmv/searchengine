@@ -16,7 +16,7 @@ public class Site {
     @Column(nullable = false)
     private Status status;
     @Column(columnDefinition = "timestamp NOT NULL", name = "status_time")
-    private LocalDate statusTime;
+    private LocalDateTime statusTime;
     @Column(columnDefinition = "TEXT", name = "last_error")
     private String lastError;
     @Column(columnDefinition = "VARCHAR(255) NOT NULL")
@@ -27,7 +27,7 @@ public class Site {
     public Site() {
     }
 
-    public Site(Status status, LocalDate statusTime, String lastError, String url, String name) {
+    public Site(Status status, LocalDateTime statusTime, String lastError, String url, String name) {
         this.status = status;
         this.statusTime = statusTime;
         this.lastError = lastError;
@@ -51,11 +51,11 @@ public class Site {
         this.status = status;
     }
 
-    public LocalDate getStatusTime() {
+    public LocalDateTime getStatusTime() {
         return statusTime;
     }
 
-    public void setStatusTime(LocalDate statusTime) {
+    public void setStatusTime(LocalDateTime statusTime) {
         this.statusTime = statusTime;
     }
 

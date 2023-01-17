@@ -24,5 +24,8 @@ public class IndexingSiteRun implements Runnable {
     public void run() {
         ForkJoinPool forkJoinPool = new ForkJoinPool();
         forkJoinPool.invoke(new ActionSiteIndexing(site, siteService, pageService));
+        site.setStatus(Status.INDEXED);
+        siteService.update(site);
+        //todo: Сделать обновление статуса сайта при завершении индексации
     }
 }

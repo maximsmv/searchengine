@@ -9,6 +9,7 @@ import searchengine.model.Status;
 import searchengine.services.indexing.IndexingSiteRun;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -38,10 +39,11 @@ public class IndexServiceImpl implements IndexService {
             site.setName(sites.getSites().get(i).getName());
             site.setUrl(sites.getSites().get(i).getUrl());
             site.setStatus(Status.INDEXING);
-            site.setStatusTime(LocalDate.now());
+            site.setStatusTime(LocalDateTime.now());
             siteService.save(site);
             service.execute(new IndexingSiteRun(site, siteService, pageService));
         }
+        service.shutdown();
     }
 
     @Override

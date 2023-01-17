@@ -15,6 +15,7 @@ import searchengine.services.SiteService;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -62,7 +63,7 @@ public class ActionSiteIndexing extends RecursiveAction {
             page.setCode(document.connection().response().statusCode());
             page.setContent(String.valueOf(document));
             pageService.save(page);
-            site.setStatusTime(LocalDate.now());
+            site.setStatusTime(LocalDateTime.now());
             siteService.update(site);
         } catch (IOException e) {
             lastError = e.getMessage();
