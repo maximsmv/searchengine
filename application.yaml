@@ -18,6 +18,4 @@ spring:
 indexing-settings:
   sites:
     - url: https://www.dextra.ru
-      name: Лента.ру
-    - url: http://www.playback.ru
-      name: Playback
+      name: Декстера

@@ -6,6 +6,7 @@ import searchengine.model.Status;
 import searchengine.services.PageService;
 import searchengine.services.SiteService;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.ForkJoinPool;
 
 public class IndexingSiteRun implements Runnable {
@@ -24,8 +25,12 @@ public class IndexingSiteRun implements Runnable {
     public void run() {
         ForkJoinPool forkJoinPool = new ForkJoinPool();
         forkJoinPool.invoke(new ActionSiteIndexing(site, siteService, pageService));
-        site.setStatus(Status.INDEXED);
-        siteService.update(site);
-        //todo: Сделать обновление статуса сайта при завершении индексации
+        forkJoinPool.shutdownNow();
+        if (forkJoinPool.isShutdown()) {
+            Site site1 = siteService.findByUrl(site.getUrl());
+            site1.setStatus(Status.INDEXED);
+            site1.setStatusTime(LocalDateTime.now());
+            siteService.update(site1);
+        }
     }
 }

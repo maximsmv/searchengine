@@ -1,6 +1,6 @@
 package searchengine.services;
 
 public interface IndexService {
-    void startIndexing();
-    void stopIndexing();
+    void startIndexing() throws RuntimeException;
+//    void stopIndexing();
 }

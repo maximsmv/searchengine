@@ -29,6 +29,7 @@ public class ApiController {
     @GetMapping("/startIndexing")
     public ResponseEntity indexing() {
         indexService.startIndexing();
-        return (ResponseEntity) ResponseEntity.ok();
+        boolean result = true;
+        return ResponseEntity.status(200).body(result);
     }
 }
