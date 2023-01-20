@@ -1,5 +1,7 @@
 package searchengine.services.indexing;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import searchengine.model.Site;
 import searchengine.model.Status;
@@ -23,14 +25,26 @@ public class IndexingSiteRun implements Runnable {
 
     @Override
     public void run() {
-        ForkJoinPool forkJoinPool = new ForkJoinPool();
-        forkJoinPool.invoke(new ActionSiteIndexing(site, siteService, pageService));
-        forkJoinPool.shutdownNow();
-        if (forkJoinPool.isShutdown()) {
-            Site site1 = siteService.findByUrl(site.getUrl());
-            site1.setStatus(Status.INDEXED);
-            site1.setStatusTime(LocalDateTime.now());
-            siteService.update(site1);
+        Document document = null;
+        String lastError = null;
+        try {
+            document = Jsoup.connect(site.getUrl()).ignoreContentType(true).get();
+            ForkJoinPool forkJoinPool = new ForkJoinPool();
+            forkJoinPool.invoke(new ActionSiteIndexing(site, siteService, pageService));
+            site.setStatus(Status.INDEXED);
+            siteService.update(site);
+            forkJoinPool.shutdown();
+        } catch (Exception e) {
+            lastError = e.getMessage();
+            e.printStackTrace();
         }
+        if (document == null) {
+            site.setStatus(Status.FAILED);
+            if (!lastError.isEmpty()) {
+                site.setLastError(lastError);
+            }
+            siteService.update(site);
+        }
+
     }
 }

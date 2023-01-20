@@ -38,23 +38,16 @@ public class IndexServiceImpl implements IndexService {
         List<Site> siteModelList = mapSite(sites);
         List<IndexingSiteCallable> tasks = new ArrayList<>();
         for (int i = 0; i < sites.getSites().size(); i++) {
-            IndexingSiteCallable task = new IndexingSiteCallable(siteModelList.get(i), siteService, pageService);
-            tasks.add(task);
-//            Future<Boolean> submit = service.submit(new IndexingSiteCallable(siteModelList.get(i), siteService, pageService));
-//            futures.add(submit);
+//            IndexingSiteCallable task = new IndexingSiteCallable(siteModelList.get(i), siteService, pageService);
+//            tasks.add(task);
+            IndexingSiteRun task = new IndexingSiteRun(siteModelList.get(i), siteService, pageService);
+            service.execute(task);
         }
 //        try {
-//            futures = service.invokeAll(tasks);
+//            service.invokeAll(tasks);
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-        try {
-            service.invokeAll(tasks);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("FINISH");
-
     }
 
     private List<Site> mapSite(SitesList sites) {

@@ -16,10 +16,8 @@ import searchengine.services.SiteService;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
@@ -60,12 +58,13 @@ public class ActionSiteIndexing extends RecursiveAction {
         try {
             document = Jsoup.connect(site.getUrl() + page.getPath()).ignoreContentType(true).get();
             System.out.println("Подключаюсь к странице: " + site.getUrl() + page.getPath());
-            page.setCode(document.connection().response().statusCode());
+            page.setCode(200);
             page.setContent(String.valueOf(document));
+            //TODO: Сделать проверку на наличие текста в document
             pageService.save(page);
             site.setStatusTime(LocalDateTime.now());
             siteService.update(site);
-        } catch (IOException e) {
+        } catch (Exception e) {
             lastError = e.getMessage();
             e.printStackTrace();
         }
@@ -95,6 +94,9 @@ public class ActionSiteIndexing extends RecursiveAction {
             pageService.save(page);
             siteService.update(site);
         }
+//        if (!taskList.isEmpty()) {
+//            ForkJoinTask.invokeAll(taskList);
+//        }
     }
 
     private boolean isSuitableLink(String mainUrl, String childUrl) {
@@ -106,7 +108,8 @@ public class ActionSiteIndexing extends RecursiveAction {
                 & !childUrl.contains(".png") & !childUrl.contains(".jpeg")
                 & !childUrl.contains(".doc") & !childUrl.contains(".docx")
                 & !childUrl.contains(".pdf") & !childUrl.contains("utm_source")
-                & !childUrl.contains(".mp4") & !childUrl.contains("?");
+                & !childUrl.contains(".mp4") & !childUrl.contains("?")
+                & !childUrl.contains(".zip");
     }
 
     private String shortToFullUrl(String mainUrl, String childUrl) {

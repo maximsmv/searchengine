@@ -8,8 +8,11 @@ import searchengine.services.PageService;
 import searchengine.services.SiteService;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
 
 public class IndexingSiteCallable implements Callable<Boolean> {
     private Site site;
@@ -24,17 +27,20 @@ public class IndexingSiteCallable implements Callable<Boolean> {
     @Override
     public Boolean call() {
         Document document = null;
+        String lastError;
         try {
             document = Jsoup.connect(site.getUrl()).ignoreContentType(true).get();
-//            ForkJoinPool forkJoinPool = new ForkJoinPool();
-//            forkJoinPool.invoke(new ActionSiteIndexing(site, siteService, pageService));
-            new ForkJoinPool().invoke(new ActionSiteIndexing(site, siteService, pageService));
-            System.out.println("\n\n" + Thread.currentThread().getId() + " завершение потока с сайтом \n\n" + site.getName());
+            ForkJoinPool forkJoinPool = new ForkJoinPool();
+            forkJoinPool.invoke(new ActionSiteIndexing(site, siteService, pageService));
+            site.setStatus(Status.INDEXED);
+            siteService.update(site);
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
+            lastError = e.getMessage();
             e.printStackTrace();
         }
         site.setStatus(Status.FAILED);
+        site.setLastError(lastError);
         siteService.update(site);
         return false;
     }

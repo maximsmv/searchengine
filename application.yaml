@@ -17,5 +17,13 @@ spring:
 
 indexing-settings:
   sites:
-    - url: https://www.dextra.ru
-      name: Декстера
+    - url: http://www.playback.ru
+      name: PLAYBACK
+    - url: http://www.somthingexsht.ru
+      name: Wrong
+    - url: https://volochek.life
+      name: LIFE
+    - url: http://radiomv.ru
+      name: RadioMV
+    - url: https://ipfran.ru
+      name: IPFran
