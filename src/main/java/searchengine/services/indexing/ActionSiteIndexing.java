@@ -84,7 +84,9 @@ public class ActionSiteIndexing extends RecursiveAction {
                 }
             }
             if (!taskList.isEmpty()) {
-                ForkJoinTask.invokeAll(taskList);
+                for (ActionSiteIndexing task : taskList) {
+                    task.join();
+                }
             }
         } else {
             System.out.println("Не смог подключиться к странице: " + site.getUrl() + page.getPath());
@@ -94,9 +96,6 @@ public class ActionSiteIndexing extends RecursiveAction {
             pageService.save(page);
             siteService.update(site);
         }
-//        if (!taskList.isEmpty()) {
-//            ForkJoinTask.invokeAll(taskList);
-//        }
     }
 
     private boolean isSuitableLink(String mainUrl, String childUrl) {

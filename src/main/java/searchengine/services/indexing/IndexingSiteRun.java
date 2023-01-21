@@ -31,6 +31,7 @@ public class IndexingSiteRun implements Runnable {
             document = Jsoup.connect(site.getUrl()).ignoreContentType(true).get();
             ForkJoinPool forkJoinPool = new ForkJoinPool();
             forkJoinPool.invoke(new ActionSiteIndexing(site, siteService, pageService));
+            System.out.println("Индексация сайта " + site.getName() + " ЗАВЕРШЕНА");
             site.setStatus(Status.INDEXED);
             siteService.update(site);
             forkJoinPool.shutdown();
