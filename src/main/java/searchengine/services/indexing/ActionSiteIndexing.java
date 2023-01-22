@@ -1,24 +1,27 @@
 package searchengine.services.indexing;
 
 import lombok.RequiredArgsConstructor;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.Connection.Response;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import searchengine.model.Page;
 import searchengine.model.Site;
-import searchengine.model.Status;
 import searchengine.services.PageService;
 import searchengine.services.SiteService;
 
+
 import java.io.IOException;
-import java.time.LocalDate;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
 @Service
@@ -31,6 +34,8 @@ public class ActionSiteIndexing extends RecursiveAction {
     private Site site;
     private Page page;
     private String lastError;
+    Response response;
+    int statusCode = 0;
 
     public ActionSiteIndexing(Site site, SiteService siteService, PageService pageService) {
         this.site = site;
@@ -56,14 +61,28 @@ public class ActionSiteIndexing extends RecursiveAction {
         List<ActionSiteIndexing> taskList = new ArrayList<>();
         Document document = null;
         try {
-            document = Jsoup.connect(site.getUrl() + page.getPath()).ignoreContentType(true).get();
+            Thread.sleep(500);
+            response = Jsoup.connect(site.getUrl() + page.getPath()).followRedirects(false).execute();
+            if (response.statusCode() != 200) {
+                statusCode = response.statusCode();
+                throw new Exception("Ошибка подключения к странице " + response.statusMessage());
+            }
+            Thread.sleep(500);
+            document = Jsoup.connect(site.getUrl() + page.getPath())
+                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
+                    .referrer("http://www.google.com")
+                    .ignoreContentType(true)
+                    .get();
             System.out.println("Подключаюсь к странице: " + site.getUrl() + page.getPath());
             page.setCode(200);
             page.setContent(String.valueOf(document));
-            //TODO: Сделать проверку на наличие текста в document
             pageService.save(page);
             site.setStatusTime(LocalDateTime.now());
             siteService.update(site);
+        } catch (HttpStatusException e) {
+            statusCode = e.getStatusCode();
+            lastError = e.getMessage();
+            e.printStackTrace();
         } catch (Exception e) {
             lastError = e.getMessage();
             e.printStackTrace();
@@ -90,7 +109,7 @@ public class ActionSiteIndexing extends RecursiveAction {
             }
         } else {
             System.out.println("Не смог подключиться к странице: " + site.getUrl() + page.getPath());
-            page.setCode(404);
+            page.setCode(statusCode);
             page.setContent(lastError);
             site.setLastError(lastError);
             pageService.save(page);

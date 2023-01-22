@@ -22,7 +22,6 @@ public class IndexServiceImpl implements IndexService {
     private SiteService siteService;
     private PageService pageService;
     private ExecutorService service;
-    List<Future<Boolean>> futures;
 
     @Autowired
     public IndexServiceImpl(SitesList sites, SiteService siteService, PageService pageService) {
@@ -30,13 +29,11 @@ public class IndexServiceImpl implements IndexService {
         this.siteService = siteService;
         this.pageService = pageService;
         service = Executors.newFixedThreadPool(sites.getSites().size());
-        futures = new ArrayList<>();
     }
 
     @Override
     public void startIndexing() {
         List<Site> siteModelList = mapSite(sites);
-        List<IndexingSiteCallable> tasks = new ArrayList<>();
         for (int i = 0; i < sites.getSites().size(); i++) {
             IndexingSiteRun task = new IndexingSiteRun(siteModelList.get(i), siteService, pageService);
             service.execute(task);

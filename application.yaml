@@ -21,5 +21,7 @@ indexing-settings:
       name: Декстра
     - url: http://www.playback.ru
       name: PLAYBACK
-    - url: http://www.somthingexsht.ru
-      name: Wrong
+    - url: http://radiomv.ru
+      name: RadioMV
+    - url: https://ipfran.ru
+      name: IPFran
