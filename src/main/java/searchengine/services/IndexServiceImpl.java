@@ -40,6 +40,18 @@ public class IndexServiceImpl implements IndexService {
         }
     }
 
+    @Override
+    public boolean checkStartIndexing() {
+        List<Site> siteModelList = siteService.findAll();
+        for (Site site : siteModelList) {
+            if (site.getStatus() == Status.INDEXING) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     private List<Site> mapSite(SitesList sites) {
         List<Site> siteModelList = new ArrayList<>();
         for (int i = 0; i < sites.getSites().size(); i++) {
@@ -53,4 +65,5 @@ public class IndexServiceImpl implements IndexService {
         }
         return siteModelList;
     }
+
 }
