@@ -2,7 +2,6 @@ package searchengine.services.indexing;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import searchengine.model.Site;
 import searchengine.model.Status;
 import searchengine.services.PageService;
@@ -16,11 +15,13 @@ public class IndexingSiteRun implements Runnable {
     private Site site;
     private SiteService siteService;
     private PageService pageService;
+    private ActionSiteIndexing actionSiteIndexing;
 
     public IndexingSiteRun(Site site, SiteService siteService, PageService pageService) {
         this.site = site;
         this.siteService = siteService;
         this.pageService = pageService;
+        actionSiteIndexing = new ActionSiteIndexing(site, siteService, pageService);
     }
 
     @Override
@@ -30,22 +31,48 @@ public class IndexingSiteRun implements Runnable {
         try {
             document = Jsoup.connect(site.getUrl()).ignoreContentType(true).get();
             ForkJoinPool forkJoinPool = new ForkJoinPool();
-            forkJoinPool.invoke(new ActionSiteIndexing(site, siteService, pageService));
-            System.out.println("Индексация сайта " + site.getName() + " ЗАВЕРШЕНА");
-            site.setStatus(Status.INDEXED);
-            siteService.update(site);
-            forkJoinPool.shutdown();
+            forkJoinPool.invoke(actionSiteIndexing);
+            if (ActionSiteIndexing.isStopIndexing()) {
+                stoppedIndexingByUser(forkJoinPool);
+            } else {
+                finishIndexing(forkJoinPool);
+            }
         } catch (Exception e) {
             lastError = e.getMessage();
             e.printStackTrace();
         }
         if (document == null) {
-            site.setStatus(Status.FAILED);
-            if (!lastError.isEmpty()) {
-                site.setLastError(lastError);
-            }
-            siteService.update(site);
+            failedIndexing(Status.FAILED, lastError);
         }
-
     }
+
+    private void finishIndexing(ForkJoinPool forkJoinPool) {
+        System.out.println("Индексация сайта " + site.getName() + " ЗАВЕРШЕНА");
+        site.setStatus(Status.INDEXED);
+        siteService.update(site);
+        forkJoinPool.shutdown();
+    }
+
+    private void failedIndexing(Status status, String lastError) {
+        System.out.println("Не смог подключиться к сайту " + site.getName() + " ОШИБКА");
+        site.setStatus(status);
+        if (!lastError.isEmpty()) {
+            site.setLastError(lastError);
+        }
+        siteService.update(site);
+    }
+
+    private void stoppedIndexingByUser(ForkJoinPool forkJoinPool) {
+        System.out.println("Пользователь остановил индексацию " + site.getName() + " ОШИБКА");
+        site.setStatus(Status.FAILED);
+        site.setStatusTime(LocalDateTime.now());
+        site.setLastError("Индексация остановлена пользователем");
+        siteService.update(site);
+        forkJoinPool.shutdown();
+    }
+
+    public void stopIndexing(boolean isStopped) {
+        ActionSiteIndexing.setStopIndexing(isStopped);
+    }
+
 }

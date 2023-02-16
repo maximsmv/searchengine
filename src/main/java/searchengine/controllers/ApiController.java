@@ -29,14 +29,26 @@ public class ApiController {
     }
 
     @GetMapping("/startIndexing")
-    public ResponseEntity indexing() {
+    public ResponseEntity<ResponseBody> indexing() {
         ResponseBody response;
         if (indexService.checkStartIndexing()) {
             response = new ResponseBody(false, "Индексация уже запущена");
-            return ResponseEntity.status(503).body(response);
+            return ResponseEntity.status(405).body(response);
         }
         response = new ResponseBody(true);
         indexService.startIndexing();
-        return ResponseEntity.status(200).body(response.isResult());
+        return ResponseEntity.status(200).body(response);
+    }
+
+    @GetMapping("/stopIndexing")
+    public ResponseEntity<ResponseBody> stopIndexing() {
+        ResponseBody response;
+        if (indexService.checkStartIndexing()) {
+            indexService.stopIndexing();
+            response = new ResponseBody(true);
+            return ResponseEntity.status(200).body(response);
+        }
+        response = new ResponseBody(false, "Индексация не запущена");
+        return ResponseEntity.status(405).body(response);
     }
 }

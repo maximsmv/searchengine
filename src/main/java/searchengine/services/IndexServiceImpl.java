@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
 import searchengine.model.Site;
 import searchengine.model.Status;
-import searchengine.services.indexing.IndexingSiteCallable;
 import searchengine.services.indexing.IndexingSiteRun;
 
 import java.time.LocalDateTime;
@@ -22,6 +21,7 @@ public class IndexServiceImpl implements IndexService {
     private SiteService siteService;
     private PageService pageService;
     private ExecutorService service;
+    private List<IndexingSiteRun> tasks;
 
     @Autowired
     public IndexServiceImpl(SitesList sites, SiteService siteService, PageService pageService) {
@@ -29,6 +29,7 @@ public class IndexServiceImpl implements IndexService {
         this.siteService = siteService;
         this.pageService = pageService;
         service = Executors.newFixedThreadPool(sites.getSites().size());
+        tasks = new ArrayList<>();
     }
 
     @Override
@@ -36,7 +37,15 @@ public class IndexServiceImpl implements IndexService {
         List<Site> siteModelList = mapSite(sites);
         for (int i = 0; i < sites.getSites().size(); i++) {
             IndexingSiteRun task = new IndexingSiteRun(siteModelList.get(i), siteService, pageService);
+            tasks.add(task);
             service.execute(task);
+        }
+    }
+
+    @Override
+    public void stopIndexing() {
+        for (IndexingSiteRun task : tasks) {
+            task.stopIndexing(true);
         }
     }
 

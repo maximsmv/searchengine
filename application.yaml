@@ -17,11 +17,5 @@ spring:
 
 indexing-settings:
   sites:
-    - url: https://www.dextra.ru
-      name: Декстра
     - url: http://www.playback.ru
-      name: PLAYBACK
-    - url: http://radiomv.ru
-      name: RadioMV
-    - url: https://ipfran.ru
-      name: IPFran
+      name: ПлэйБэк
