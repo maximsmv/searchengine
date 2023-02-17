@@ -25,14 +25,12 @@ public class ActionSiteIndexing extends RecursiveAction {
 
     private static boolean stopIndexing = false;
     private static Set<String> urls;
-    private static boolean doStop;
     private SiteService siteService;
     private PageService pageService;
     private Site site;
     private Page page;
     private String lastError;
-    Response response;
-    int statusCode = 0;
+    private int statusCode = 0;
 
     public ActionSiteIndexing(Site site, SiteService siteService, PageService pageService) {
         this.site = site;
@@ -59,7 +57,7 @@ public class ActionSiteIndexing extends RecursiveAction {
             List<ActionSiteIndexing> taskList = new ArrayList<>();
             Document document = null;
             try {
-                response = Jsoup.connect(site.getUrl() + page.getPath()).followRedirects(false).execute();
+                Response response = Jsoup.connect(site.getUrl() + page.getPath()).followRedirects(false).execute();
                 if (response.statusCode() != 200) {
                     statusCode = response.statusCode();
                     throw new Exception("Ошибка подключения к странице " + response.statusMessage());

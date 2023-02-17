@@ -5,4 +5,5 @@ import searchengine.model.Site;
 
 public interface SiteRepository extends JpaRepository<Site, Integer> {
     Site findByUrl(String url);
+    Site findByName(String name);
 }

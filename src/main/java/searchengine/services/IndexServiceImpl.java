@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,12 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public void startIndexing() {
+        for (int i = 0; i < sites.getSites().size(); i++) {
+          Site site = siteService.findByName(sites.getSites().get(i).getName());
+          if (site != null) {
+              siteService.delete(site);
+          }
+        }
         List<Site> siteModelList = mapSite(sites);
         for (int i = 0; i < sites.getSites().size(); i++) {
             IndexingSiteRun task = new IndexingSiteRun(siteModelList.get(i), siteService, pageService);
@@ -59,7 +66,6 @@ public class IndexServiceImpl implements IndexService {
         }
         return false;
     }
-
 
     private List<Site> mapSite(SitesList sites) {
         List<Site> siteModelList = new ArrayList<>();

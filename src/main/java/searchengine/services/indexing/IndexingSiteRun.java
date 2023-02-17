@@ -42,7 +42,7 @@ public class IndexingSiteRun implements Runnable {
             e.printStackTrace();
         }
         if (document == null) {
-            failedIndexing(Status.FAILED, lastError);
+            failedIndexing(lastError);
         }
     }
 
@@ -53,9 +53,9 @@ public class IndexingSiteRun implements Runnable {
         forkJoinPool.shutdown();
     }
 
-    private void failedIndexing(Status status, String lastError) {
+    private void failedIndexing(String lastError) {
         System.out.println("Не смог подключиться к сайту " + site.getName() + " ОШИБКА");
-        site.setStatus(status);
+        site.setStatus(Status.FAILED);
         if (!lastError.isEmpty()) {
             site.setLastError(lastError);
         }
