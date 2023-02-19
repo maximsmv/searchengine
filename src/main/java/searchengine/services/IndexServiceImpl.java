@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +20,7 @@ public class IndexServiceImpl implements IndexService {
     private SitesList sites;
     private SiteService siteService;
     private PageService pageService;
-    private ExecutorService service;
+//    private ExecutorService service;
     private List<IndexingSiteRun> tasks;
 
     @Autowired
@@ -29,7 +28,7 @@ public class IndexServiceImpl implements IndexService {
         this.sites = sites;
         this.siteService = siteService;
         this.pageService = pageService;
-        service = Executors.newFixedThreadPool(sites.getSites().size());
+//        service = Executors.newFixedThreadPool(sites.getSites().size());
         tasks = new ArrayList<>();
     }
 
@@ -41,9 +40,13 @@ public class IndexServiceImpl implements IndexService {
               siteService.delete(site);
           }
         }
+        ExecutorService service = Executors.newFixedThreadPool(sites.getSites().size());
         List<Site> siteModelList = mapSite(sites);
         for (int i = 0; i < sites.getSites().size(); i++) {
             IndexingSiteRun task = new IndexingSiteRun(siteModelList.get(i), siteService, pageService);
+            if (i == 0) {
+                task.startOrStopIndexing(false);
+            }
             tasks.add(task);
             service.execute(task);
         }
@@ -52,7 +55,7 @@ public class IndexServiceImpl implements IndexService {
     @Override
     public void stopIndexing() {
         for (IndexingSiteRun task : tasks) {
-            task.stopIndexing(true);
+            task.startOrStopIndexing(true);
         }
     }
 

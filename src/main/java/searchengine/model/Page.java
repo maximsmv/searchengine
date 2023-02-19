@@ -1,6 +1,8 @@
 package searchengine.model;
 
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.postgresql.jdbc.FieldMetadata;
 
 import javax.persistence.*;
@@ -14,8 +16,9 @@ public class Page {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @ManyToOne(cascade = CascadeType.MERGE)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "site_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Site site;
     @Column(columnDefinition = "TEXT NOT NULL")
     private String path;

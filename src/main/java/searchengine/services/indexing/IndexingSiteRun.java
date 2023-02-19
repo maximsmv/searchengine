@@ -71,7 +71,7 @@ public class IndexingSiteRun implements Runnable {
         forkJoinPool.shutdown();
     }
 
-    public void stopIndexing(boolean isStopped) {
+    public void startOrStopIndexing(boolean isStopped) {
         ActionSiteIndexing.setStopIndexing(isStopped);
     }
 
