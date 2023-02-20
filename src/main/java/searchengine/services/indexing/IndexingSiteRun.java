@@ -70,9 +70,4 @@ public class IndexingSiteRun implements Runnable {
         siteService.update(site);
         forkJoinPool.shutdown();
     }
-
-    public void startOrStopIndexing(boolean isStopped) {
-        ActionSiteIndexing.setStopIndexing(isStopped);
-    }
-
 }
