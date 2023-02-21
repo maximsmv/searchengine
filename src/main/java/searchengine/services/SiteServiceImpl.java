@@ -7,6 +7,7 @@ import searchengine.config.SitesList;
 import searchengine.dao.PageRepository;
 import searchengine.dao.SiteRepository;
 import searchengine.model.Site;
+import searchengine.services.util.UrlsRedactor;
 
 import java.util.List;
 
@@ -39,6 +40,12 @@ public class SiteServiceImpl implements SiteService {
     @Override
     public Site findByName(String name) {
         return siteRepository.findByName(name);
+    }
+
+    @Override
+    public Site findByContainsUrl(String url) {
+        String siteUrl = UrlsRedactor.getMainUrlFromFull(url);
+        return findByUrl(siteUrl);
     }
 
     @Override

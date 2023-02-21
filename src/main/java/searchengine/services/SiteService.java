@@ -10,7 +10,9 @@ public interface SiteService {
     List<Site> findAll();
     Site findByUrl(String url);
     Site findByName(String name);
+    Site findByContainsUrl(String url);
     void delete(Site site);
     void deleteByUrl(String url);
     void deleteAll();
+
 }

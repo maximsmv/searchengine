@@ -6,7 +6,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL10Dialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
   datasource:
     url: jdbc:postgresql://localhost:5432/search_engine
@@ -17,5 +17,9 @@ spring:
 
 indexing-settings:
   sites:
-    - url: http://www.playback.ru
-      name: ПлэйБэк
+    - url: http://cimus.biz
+      name: Симус
+    - url: https://exotic-zoo.ru
+      name: ЭкзотикЗуу
+    - url: https://nikoartgallery.com
+      name: Галлерея

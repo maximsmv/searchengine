@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.logging.Level;
 
 @Entity
-@IdClass(Index.class)
+@IdClass(Index_key.class)
 @Table(name = "index")
 public class Index implements Serializable{
     @Id

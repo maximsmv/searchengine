@@ -3,9 +3,7 @@ package searchengine.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.StreamingHttpOutputMessage;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import searchengine.dto.ResponseBody;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.services.IndexService;
@@ -51,4 +49,19 @@ public class ApiController {
         response = new ResponseBody(false, "Индексация не запущена");
         return ResponseEntity.status(405).body(response);
     }
+
+    @PostMapping("/indexPage")
+    public ResponseEntity<ResponseBody> indexPage(@RequestParam(value = "url") String url) {
+        ResponseBody response;
+        if (indexService.checkIndexedPage(url)) {
+            indexService.indexPage(url);
+            response = new ResponseBody(true);
+            return ResponseEntity.status(200).body(response);
+        } else {
+            response = new ResponseBody(false, "Данная страница находится за пределами сайтов, указанных в конфигурационном файле");
+            return ResponseEntity.status(404).body(response);
+        }
+    }
+
+
 }
